@@ -19,8 +19,11 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 
 	// Protected routes
 	protected := r.Group("/api")
-	protected.Use(middleware.AuthMiddleware())
+	protected.Use(middleware.AuthMiddleware(db))
 	// Add your protected routes here
+
+	// Logout route
+	protected.POST("/logout", handlers.Logout(db))
 
 	// Add more routes here
 }

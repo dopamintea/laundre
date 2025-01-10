@@ -19,6 +19,7 @@ func RunMigrations(db *gorm.DB) {
 		&models.Expense{},
 		&models.Staff{},
 		&models.Log{},
+		&models.TokenBlacklist{},
 	)
 	if err != nil {
 		log.Fatal("Failed to run migrations:", err)

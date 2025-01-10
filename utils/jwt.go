@@ -14,17 +14,20 @@ type Claims struct {
 	Username string `json:"username"`
 	Role     string `json:"role"`
 	BranchID *uint  `json:"branch_id"`
-	jwt.StandardClaims
+	*jwt.RegisteredClaims
 }
 
 func GenerateToken(user models.User) (string, error) {
+	// Create claims with expiry time
 	claims := Claims{
 		UserID:   user.ID,
 		Username: user.Username,
 		Role:     user.Role,
 		BranchID: user.BranchID,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(24 * time.Hour).Unix(),
+		RegisteredClaims: &jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			NotBefore: jwt.NewNumericDate(time.Now()),
 		},
 	}
 
@@ -34,12 +37,21 @@ func GenerateToken(user models.User) (string, error) {
 
 func ValidateToken(tokenString string) (*Claims, error) {
 	claims := &Claims{}
+
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		// Validate signing method
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, jwt.ErrSignatureInvalid
+		}
 		return jwtSecret, nil
 	})
 
-	if err != nil || !token.Valid {
+	if err != nil {
 		return nil, err
+	}
+
+	if !token.Valid {
+		return nil, jwt.ErrTokenExpired
 	}
 
 	return claims, nil
