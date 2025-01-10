@@ -8,8 +8,8 @@ import (
 )
 
 func ConnectDatabase() (*gorm.DB, error) {
-
-	dsn := "user:pass@tcp(127.0.0.1:3306)/database?charset=utf8mb4&parseTime=True&loc=Local"
+	// Replace with your MySQL credentials
+	dsn := "user:@tcp(127.0.0.1:3306)/?charset=utf8mb4&parseTime=True&loc=Local"
 
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
