@@ -14,7 +14,6 @@ type TokenBlacklist struct {
 	CreatedAt time.Time `gorm:"autoCreateTime"`
 }
 
-// Hapus expired tokens
 func CleanupBlacklist(db *gorm.DB) {
 	db.Where("expires_at < ?", time.Now()).Delete(&TokenBlacklist{})
 }

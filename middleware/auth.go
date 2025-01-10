@@ -20,7 +20,6 @@ func AuthMiddleware(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		// Extract token
 		bearerToken := strings.Split(authHeader, " ")
 		if len(bearerToken) != 2 || bearerToken[0] != "Bearer" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid authorization format"})
@@ -30,7 +29,6 @@ func AuthMiddleware(db *gorm.DB) gin.HandlerFunc {
 
 		tokenString := bearerToken[1]
 
-		// Check if token is blacklisted
 		var blacklistedToken models.TokenBlacklist
 		if err := db.Where("token = ?", tokenString).First(&blacklistedToken).Error; err == nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token has been invalidated"})
@@ -38,7 +36,6 @@ func AuthMiddleware(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		// Validate token
 		claims, err := utils.ValidateToken(tokenString)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
@@ -46,8 +43,7 @@ func AuthMiddleware(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		// Store token string and claims in context
-		c.Set("token", tokenString) // Store the raw token string
+		c.Set("token", tokenString)
 		c.Set("user_id", claims.UserID)
 		c.Set("username", claims.Username)
 		c.Set("role", claims.Role)

@@ -18,7 +18,7 @@ type Claims struct {
 }
 
 func GenerateToken(user models.User) (string, error) {
-	// Create claims with expiry time
+
 	claims := Claims{
 		UserID:   user.ID,
 		Username: user.Username,
@@ -39,7 +39,7 @@ func ValidateToken(tokenString string) (*Claims, error) {
 	claims := &Claims{}
 
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		// Validate signing method
+
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, jwt.ErrSignatureInvalid
 		}
