@@ -22,13 +22,21 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 	api.POST("/logout", handlers.Logout(db))
 
 	// Branch routes (admin only)
-	branches := api.Group("/branches")
-	branches.Use(middleware.AdminOnly())
+	admin := api.Group("/admin")
+	admin.Use(middleware.AdminOnly())
 	{
-		branches.POST("/", handlers.CreateBranch(db))
-		branches.GET("/", handlers.GetBranches(db))
-		branches.GET("/:id", handlers.GetBranch(db))
-		branches.PUT("/:id", handlers.UpdateBranch(db))
-		branches.DELETE("/:id", handlers.DeleteBranch(db))
+		// User routes
+		admin.POST("/users", handlers.CreateUser(db))
+		admin.GET("/users", handlers.GetUsers(db))
+		admin.GET("/users/:id", handlers.GetUser(db))
+		admin.PUT("/users/:id", handlers.UpdateUser(db))
+		admin.DELETE("/users/:id", handlers.DeleteUser(db))
+
+		// Branch routes
+		admin.POST("/branches", handlers.CreateBranch(db))
+		admin.GET("/branches", handlers.GetBranches(db))
+		admin.GET("/branches/:id", handlers.GetBranch(db))
+		admin.PUT("/branches/:id", handlers.UpdateBranch(db))
+		admin.DELETE("/branches/:id", handlers.DeleteBranch(db))
 	}
 }
