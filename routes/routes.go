@@ -39,4 +39,27 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 		admin.PUT("/branches/:id", handlers.UpdateBranch(db))
 		admin.DELETE("/branches/:id", handlers.DeleteBranch(db))
 	}
+
+	shared := api.Group("/shared")
+	shared.Use(middleware.AdminOrStaffBranch())
+	{
+		shared.POST("/transaction", handlers.CreateTransaction(db))       // Create transaction
+		shared.GET("/transaction", handlers.GetTransactions(db))          // Get all transactions
+		shared.GET("/transaction/:id", handlers.GetTransaction(db))       // Get a transaction by ID
+		shared.PUT("/transaction/:id", handlers.UpdateTransaction(db))    // Update a transaction
+		shared.DELETE("/transaction/:id", handlers.DeleteTransaction(db)) // Delete a transaction
+
+		shared.POST("/orders", handlers.CreateOrder(db))       // Create order
+		shared.GET("/orders", handlers.GetOrders(db))          // Get all orders
+		shared.GET("/orders/:id", handlers.GetOrder(db))       // Get order by ID
+		shared.PUT("/orders/:id", handlers.UpdateOrder(db))    // Update order
+		shared.DELETE("/orders/:id", handlers.DeleteOrder(db)) // Delete order
+
+		shared.POST("/customers", handlers.CreateCustomer(db))       // Create customer
+		shared.GET("/customers", handlers.GetCustomers(db))          // Get all customers
+		shared.GET("/customers/:id", handlers.GetCustomer(db))       // Get customer by ID
+		shared.PUT("/customers/:id", handlers.UpdateCustomer(db))    // Update customer
+		shared.DELETE("/customers/:id", handlers.DeleteCustomer(db)) // Delete customer
+	}
+
 }
