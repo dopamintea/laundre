@@ -17,7 +17,6 @@ func RunMigrations(db *gorm.DB) {
 		&models.Order{},
 		&models.Transaction{},
 		&models.Expense{},
-		&models.Staff{},
 		&models.Log{},
 		&models.TokenBlacklist{},
 	)
