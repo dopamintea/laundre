@@ -6,6 +6,7 @@ go run main.go
 Postman Test Guide
 - Login
     POST {url}/login
+  
         body
         {
             "username": "admin",
@@ -25,6 +26,7 @@ Postman Test Guide
 
 - Logout
     POST {url}/api/logout
+  
         Authorization: Bearer Token = {token}
 
         response
@@ -34,6 +36,7 @@ Postman Test Guide
 
 - Create Branch
     POST {url}/api/admin/branches
+  
         Authorization: Bearer Token = {token}
 
         body
@@ -45,14 +48,17 @@ Postman Test Guide
 
 - Get All Branch
     GET {url}/api/admin/branches
+  
         Authorization: Bearer Token = {token}
 
 - Get Branch by ID
     GET {url}/api/admin/branches/{id}
+  
         Authorization: Bearer Token = {token}
 
 - Update Branch by ID
     PUT {url}/api/admin/branches
+  
         Authorization: Bearer Token = {token}
         
         body
@@ -64,10 +70,12 @@ Postman Test Guide
 
 - Delete Branch by ID
     DELETE {url}/api/admin/branches/{id}
+  
         Authorization: Bearer Token = {token}
 
 - Create User
     POST {url}/api/admin/users
+  
         Authorization: Bearer Token = {token}
         
         body
@@ -81,8 +89,10 @@ Postman Test Guide
 
 - Get All Users
     GET {url}/api/admin/users
+  
         Authorization: Bearer Token = {token}
 
 - Get User by ID
     Get {url}/api/admin/users/{id}
+  
         Authorization: Bearer Token = {token}
