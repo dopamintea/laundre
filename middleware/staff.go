@@ -16,13 +16,11 @@ func AdminOrStaffBranch() gin.HandlerFunc {
 			return
 		}
 
-		// Admin has full access
 		if role == "admin" {
 			c.Next()
 			return
 		}
 
-		// For staff, check branch access
 		if role == "staf" {
 			userBranchID, exists := c.Get("branch_id")
 			if !exists || userBranchID == nil {
@@ -31,7 +29,6 @@ func AdminOrStaffBranch() gin.HandlerFunc {
 				return
 			}
 
-			// Get branch_id from request (same logic as BranchAccess middleware)
 			requestedBranchID := c.Param("branch_id")
 			if requestedBranchID == "" {
 				requestedBranchID = c.Query("branch_id")
@@ -40,11 +37,9 @@ func AdminOrStaffBranch() gin.HandlerFunc {
 						var bodyMap map[string]interface{}
 						if err := c.ShouldBindJSON(&bodyMap); err == nil {
 							if branchID, exists := bodyMap["branch_id"]; exists {
-								// Mengonversi float64 ke string
 								requestedBranchID = fmt.Sprintf("%.0f", branchID.(float64))
 							}
 						}
-						// Mendapatkan kembali body request
 						body, err := c.Request.GetBody()
 						if err == nil {
 							c.Request.Body = body

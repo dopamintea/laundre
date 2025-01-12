@@ -24,32 +24,27 @@ func Login(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		// Cari user
 		var user models.User
 		if err := db.Where("username = ? AND status = ?", req.Username, "active").First(&user).Error; err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 			return
 		}
 
-		// Verif password
 		if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 			return
 		}
 
-		// Gen token
 		token, err := utils.GenerateToken(user)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
 			return
 		}
 
-		// Update last login
 		now := time.Now()
 		user.LastLogin = &now
 		db.Save(&user)
 
-		// Bikin login log
 		log := models.Log{
 			UserID:    user.ID,
 			IPAddress: c.ClientIP(),

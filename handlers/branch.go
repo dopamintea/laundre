@@ -20,7 +20,6 @@ type UpdateBranchRequest struct {
 	Phone   string `json:"phone"`
 }
 
-// Create new branch
 func CreateBranch(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req CreateBranchRequest
@@ -44,7 +43,6 @@ func CreateBranch(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
-// Get all branches
 func GetBranches(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var branches []models.Branch
@@ -57,7 +55,6 @@ func GetBranches(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
-// Get branch by ID
 func GetBranch(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var branch models.Branch
@@ -70,7 +67,6 @@ func GetBranch(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
-// Update branch
 func UpdateBranch(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var branch models.Branch
@@ -85,7 +81,6 @@ func UpdateBranch(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		// Update only provided fields
 		if req.Name != "" {
 			branch.Name = req.Name
 		}
@@ -105,7 +100,6 @@ func UpdateBranch(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
-// Delete branch
 func DeleteBranch(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var branch models.Branch

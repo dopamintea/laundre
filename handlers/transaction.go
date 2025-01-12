@@ -19,7 +19,6 @@ type TransactionRequest struct {
 	PaymentStatus   string  `json:"payment_status"`
 }
 
-// Create transaction
 func CreateTransaction(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req TransactionRequest
@@ -28,14 +27,12 @@ func CreateTransaction(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		// Begin database transaction
 		err := db.Transaction(func(tx *gorm.DB) error {
-			// Step 1: Find or create customer
 			var customer models.Customer
 			if err := tx.Where("name = ? AND phone = ?", req.CustomerName, req.CustomerPhone).
 				First(&customer).Error; err != nil {
 				if err == gorm.ErrRecordNotFound {
-					// Create new customer
+
 					customer = models.Customer{
 						Name:    req.CustomerName,
 						Phone:   req.CustomerPhone,
@@ -49,7 +46,6 @@ func CreateTransaction(db *gorm.DB) gin.HandlerFunc {
 				}
 			}
 
-			// Step 2: Create order
 			order := models.Order{
 				BranchID:   req.BranchID,
 				CustomerID: customer.ID,
@@ -59,8 +55,7 @@ func CreateTransaction(db *gorm.DB) gin.HandlerFunc {
 				return err
 			}
 
-			// Step 3: Create transaction
-			userID, _ := c.Get("user_id") // Assuming user_id is set in context by authentication middleware
+			userID, _ := c.Get("user_id")
 			transaction := models.Transaction{
 				BranchID:      req.BranchID,
 				OrderID:       order.ID,
@@ -72,7 +67,6 @@ func CreateTransaction(db *gorm.DB) gin.HandlerFunc {
 				return err
 			}
 
-			// Return nil to commit the transaction
 			return nil
 		})
 
@@ -85,7 +79,6 @@ func CreateTransaction(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
-// Get all transactions
 func GetTransactions(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -126,7 +119,6 @@ func GetTransactions(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
-// Get a transaction by ID
 func GetTransaction(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id := c.Param("id")
@@ -142,7 +134,6 @@ func GetTransaction(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
-// Update a transaction
 func UpdateTransaction(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id := c.Param("id")
@@ -172,7 +163,6 @@ func UpdateTransaction(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
-// Delete a transaction
 func DeleteTransaction(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id := c.Param("id")

@@ -9,14 +9,12 @@ import (
 	"gorm.io/gorm"
 )
 
-// Request struct for creating/updating orders
 type OrderRequest struct {
 	BranchID   uint   `json:"branch_id" binding:"required"`
 	CustomerID uint   `json:"customer_id" binding:"required"`
 	Status     string `json:"status" binding:"omitempty,oneof=masuk proses urgent done"`
 }
 
-// Create order
 func CreateOrder(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req OrderRequest
@@ -36,7 +34,6 @@ func CreateOrder(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		// Fetch complete order with relationships
 		db.Preload("Branch").Preload("Customer").First(&order, order.ID)
 
 		c.JSON(http.StatusCreated, gin.H{
@@ -46,7 +43,6 @@ func CreateOrder(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
-// Get all orders
 func GetOrders(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -56,7 +52,6 @@ func GetOrders(db *gorm.DB) gin.HandlerFunc {
 		var orders []models.Order
 		query := db.Preload("Branch").Preload("Customer")
 
-		// Apply filters
 		if branchID := c.Query("branch_id"); branchID != "" {
 			query = query.Where("orders.branch_id = ?", branchID)
 		}
@@ -87,7 +82,6 @@ func GetOrders(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
-// Get order by ID
 func GetOrder(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id := c.Param("id")
@@ -102,7 +96,6 @@ func GetOrder(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
-// Update order
 func UpdateOrder(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id := c.Param("id")
@@ -119,7 +112,6 @@ func UpdateOrder(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		// Only update allowed fields
 		updates := map[string]interface{}{
 			"status": req.Status,
 		}
@@ -129,7 +121,6 @@ func UpdateOrder(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		// Fetch updated order with relationships
 		db.Preload("Branch").Preload("Customer").First(&order, id)
 
 		c.JSON(http.StatusOK, gin.H{
@@ -139,7 +130,6 @@ func UpdateOrder(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
-// Delete order
 func DeleteOrder(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id := c.Param("id")

@@ -25,7 +25,6 @@ type UpdateUserRequest struct {
 	Status   string `json:"status" binding:"omitempty,oneof=active inactive"`
 }
 
-// Create new user
 func CreateUser(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req CreateUserRequest
@@ -34,13 +33,11 @@ func CreateUser(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		// Validate BranchID if role is staf
 		if req.Role == "staf" && req.BranchID == nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Branch ID is required for staff users"})
 			return
 		}
 
-		// If BranchID is provided, verify it exists
 		if req.BranchID != nil {
 			var branch models.Branch
 			if err := db.First(&branch, req.BranchID).Error; err != nil {
@@ -69,13 +66,11 @@ func CreateUser(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		// Don't return the password in the response
 		user.Password = ""
 		c.JSON(http.StatusCreated, user)
 	}
 }
 
-// Get all users
 func GetUsers(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var users []models.User
@@ -88,7 +83,6 @@ func GetUsers(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
-// Get user by ID
 func GetUser(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var user models.User
@@ -101,7 +95,6 @@ func GetUser(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
-// Update user
 func UpdateUser(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var user models.User
@@ -116,13 +109,11 @@ func UpdateUser(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		// Validate BranchID if role is being updated to staf
 		if req.Role == "staf" && req.BranchID == nil && user.BranchID == nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Branch ID is required for staff users"})
 			return
 		}
 
-		// If BranchID is provided, verify it exists
 		if req.BranchID != nil {
 			var branch models.Branch
 			if err := db.First(&branch, req.BranchID).Error; err != nil {
@@ -131,7 +122,6 @@ func UpdateUser(db *gorm.DB) gin.HandlerFunc {
 			}
 		}
 
-		// Update fields if provided
 		if req.Username != "" {
 			user.Username = req.Username
 		}
@@ -158,13 +148,11 @@ func UpdateUser(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		// Don't return the password in the response
 		user.Password = ""
 		c.JSON(http.StatusOK, user)
 	}
 }
 
-// Delete user
 func DeleteUser(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var user models.User

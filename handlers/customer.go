@@ -9,7 +9,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// Request struct for creating/updating customers
 type CustomerRequest struct {
 	Name     string `json:"name" binding:"required"`
 	Phone    string `json:"phone" binding:"required"`
@@ -17,7 +16,6 @@ type CustomerRequest struct {
 	Category string `json:"category" binding:"omitempty,oneof=setia reguler"`
 }
 
-// Create a new customer
 func CreateCustomer(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req CustomerRequest
@@ -45,7 +43,6 @@ func CreateCustomer(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
-// Get all customers
 func GetCustomers(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -75,7 +72,6 @@ func GetCustomers(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
-// Get customer by ID
 func GetCustomer(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id := c.Param("id")
@@ -90,7 +86,6 @@ func GetCustomer(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
-// Update customer
 func UpdateCustomer(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id := c.Param("id")
@@ -126,7 +121,6 @@ func UpdateCustomer(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
-// Delete customer
 func DeleteCustomer(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id := c.Param("id")
