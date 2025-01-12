@@ -88,7 +88,6 @@ func GetTransactions(db *gorm.DB) gin.HandlerFunc {
 		var transactions []models.Transaction
 		query := db.Preload("Branch").Preload("Order.Customer").Preload("User")
 
-		// Apply filters
 		if branchID := c.Query("branch_id"); branchID != "" {
 			query = query.Where("transactions.branch_id = ?", branchID)
 		}
