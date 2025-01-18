@@ -13,7 +13,7 @@ type TransactionRequest struct {
 	CustomerName    string  `json:"customer_name" binding:"required"`
 	CustomerPhone   string  `json:"customer_phone" binding:"required"`
 	CustomerAddress string  `json:"customer_address" binding:"required"`
-	OrderStatus     string  `json:"order_status" binding:"omitempty,oneof=masuk proses urgent"`
+	OrderStatus     string  `json:"order_status" binding:"omitempty,oneof=masuk proses urgent done"`
 	BranchID        uint    `json:"branch_id" binding:"required"`
 	TotalPrice      float64 `json:"total_price" binding:"required"`
 	PaymentStatus   string  `json:"payment_status"`

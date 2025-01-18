@@ -115,7 +115,7 @@ func UpdateOrder(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		validStatuses := map[string]bool{"masuk": true, "proses": true, "urgent": true}
+		validStatuses := map[string]bool{"masuk": true, "proses": true, "urgent": true, "done": true}
 		if !validStatuses[req.Status] {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid status"})
 			return
