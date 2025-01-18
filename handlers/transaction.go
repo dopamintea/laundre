@@ -182,21 +182,89 @@ func UpdateTransaction(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
+// func DeleteTransaction(db *gorm.DB) gin.HandlerFunc {
+// 	return func(c *gin.Context) {
+// 		id := c.Param("id")
+
+// 		result := db.Delete(&models.Transaction{}, id)
+// 		if result.Error != nil {
+// 			c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+// 			return
+// 		}
+
+// 		if result.RowsAffected == 0 {
+// 			c.JSON(http.StatusNotFound, gin.H{"error": "Transaction not found"})
+// 			return
+// 		}
+
+// 		c.JSON(http.StatusOK, gin.H{"message": "Transaction deleted successfully"})
+// 	}
+// }
+
 func DeleteTransaction(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id := c.Param("id")
 
+		// Fetch the transaction to get the associated OrderID
+		var transaction models.Transaction
+		if err := db.First(&transaction, id).Error; err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Transaction not found"})
+			return
+		}
+
+		// Delete the transaction first
 		result := db.Delete(&models.Transaction{}, id)
 		if result.Error != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
 			return
 		}
 
+		// If no rows are affected, return "Transaction not found"
 		if result.RowsAffected == 0 {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Transaction not found"})
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{"message": "Transaction deleted successfully"})
+		// After deleting the transaction, delete the associated order
+		if err := db.Delete(&models.Order{}, transaction.OrderID).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete associated order"})
+			return
+		}
+
+		// Return success message
+		c.JSON(http.StatusOK, gin.H{"message": "Transaction and associated order deleted successfully"})
 	}
+}
+
+func GetTransactionsByOrderStatus(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		status := c.Param("status")
+
+		allowedStatuses := []string{"masuk", "proses", "urgent", "done"}
+
+		if !contains(allowedStatuses, status) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid status"})
+			return
+		}
+
+		var transactions []models.Transaction
+		if err := db.Joins("JOIN orders ON orders.id = transactions.order_id").
+			Where("orders.status = ?", status).
+			Find(&transactions).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"data": transactions})
+	}
+}
+
+func contains(slice []string, status string) bool {
+	for _, s := range slice {
+		if s == status {
+			return true
+		}
+	}
+	return false
 }

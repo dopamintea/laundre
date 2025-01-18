@@ -45,6 +45,7 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 		shared.GET("/transaction/:id", handlers.GetTransaction(db))
 		shared.PUT("/transaction/:id", handlers.UpdateTransaction(db))
 		shared.DELETE("/transaction/:id", handlers.DeleteTransaction(db))
+		shared.GET("/transaction/status/:status", handlers.GetTransactionsByOrderStatus(db))
 
 		shared.POST("/orders", handlers.CreateOrder(db))
 		shared.GET("/orders", handlers.GetOrders(db))
