@@ -321,3 +321,29 @@ func GetTransactionByDate(db *gorm.DB) gin.HandlerFunc {
 		})
 	}
 }
+
+func GetTransactionsByBranch(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		branchID := c.Param("branch_id")
+
+		if branchID == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Branch ID is required"})
+			return
+		}
+
+		var transactions []models.Transaction
+		if err := db.Preload("Order").Preload("User").Preload("Branch").
+			Where("branch_id = ?", branchID).
+			Find(&transactions).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve transactions", "details": err.Error()})
+			return
+		}
+
+		if len(transactions) == 0 {
+			c.JSON(http.StatusNotFound, gin.H{"message": "No transactions found for the specified branch"})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"data": transactions})
+	}
+}

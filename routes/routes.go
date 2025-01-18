@@ -38,6 +38,7 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 
 		admin.GET("/gross", handlers.GetGrossProfit(db))
 		admin.POST("/transaction/report", handlers.GetTransactionByDate(db))
+		admin.GET("/transaction/report/:branch_id", handlers.GetTransactionsByBranch(db))
 	}
 
 	shared := api.Group("/shared")
