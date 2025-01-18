@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"laundre/models"
 	"net/http"
 	"strconv"
@@ -152,5 +153,22 @@ func DeleteOrder(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, gin.H{"message": "Order deleted successfully"})
+	}
+}
+
+func GetGrossProfit(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var totalGrossProfit sql.NullFloat64
+
+		if err := db.Model(&models.Order{}).Where("status = ?", "done").Select("sum(price)").Scan(&totalGrossProfit).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to calculate gross profit from orders", "details": err.Error()})
+			return
+		}
+
+		if !totalGrossProfit.Valid {
+			totalGrossProfit.Float64 = 0.0
+		}
+
+		c.JSON(http.StatusOK, gin.H{"gross_profit": totalGrossProfit.Float64})
 	}
 }
