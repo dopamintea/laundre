@@ -4,6 +4,7 @@ import (
 	"laundre/models"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -243,4 +244,80 @@ func contains(slice []string, status string) bool {
 		}
 	}
 	return false
+}
+
+func GetTransactionByDate(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		var dateFilter struct {
+			StartDate string `json:"start_date"`
+			EndDate   string `json:"end_date"`
+		}
+
+		if err := c.ShouldBindJSON(&dateFilter); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body", "details": err.Error()})
+			return
+		}
+
+		if dateFilter.StartDate == "" && dateFilter.EndDate == "" {
+			today := time.Now().Format("2006-01-02")
+			dateFilter.StartDate = today
+			dateFilter.EndDate = today
+		}
+
+		if dateFilter.StartDate == "" {
+			var earliestDate struct {
+				MinDate string `json:"min_date"`
+			}
+			if err := db.Model(&models.Transaction{}).
+				Select("MIN(created_at) as min_date").
+				Scan(&earliestDate).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve earliest transaction date", "details": err.Error()})
+				return
+			}
+			dateFilter.StartDate = earliestDate.MinDate
+		}
+
+		if dateFilter.EndDate == "" {
+			var latestDate struct {
+				MaxDate string `json:"max_date"`
+			}
+			if err := db.Model(&models.Transaction{}).
+				Select("MAX(created_at) as max_date").
+				Scan(&latestDate).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve latest transaction date", "details": err.Error()})
+				return
+			}
+			dateFilter.EndDate = latestDate.MaxDate
+		}
+
+		var transactions []models.Transaction
+
+		if err := db.Preload("Order").Preload("User").Preload("Branch").
+			Where("DATE(created_at) BETWEEN ? AND ?", dateFilter.StartDate, dateFilter.EndDate).
+			Find(&transactions).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve transactions", "details": err.Error()})
+			return
+		}
+
+		var dateTotalPrice []struct {
+			Date        string  `json:"date"`
+			TotalAmount float64 `json:"total_amount"`
+		}
+
+		if err := db.Model(&models.Transaction{}).
+			Where("DATE(created_at) BETWEEN ? AND ?", dateFilter.StartDate, dateFilter.EndDate).
+			Select("DATE(created_at) as date, sum(total_price) as total_amount").
+			Group("DATE(created_at)").
+			Order("date ASC").
+			Scan(&dateTotalPrice).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to calculate total price by date", "details": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"transactions":        transactions,
+			"total_price_by_date": dateTotalPrice,
+		})
+	}
 }

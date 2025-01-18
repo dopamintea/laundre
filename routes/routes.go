@@ -37,6 +37,7 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 		admin.DELETE("/branches/:id", handlers.DeleteBranch(db))
 
 		admin.GET("/gross", handlers.GetGrossProfit(db))
+		admin.POST("/transaction/report", handlers.GetTransactionByDate(db))
 	}
 
 	shared := api.Group("/shared")
