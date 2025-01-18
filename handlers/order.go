@@ -4,6 +4,7 @@ import (
 	"laundre/models"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -106,25 +107,30 @@ func UpdateOrder(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		var req OrderRequest
+		var req struct {
+			Status string `json:"status" binding:"required"`
+		}
 		if err := c.ShouldBindJSON(&req); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
-		updates := map[string]interface{}{
-			"status": req.Status,
+		validStatuses := map[string]bool{"masuk": true, "proses": true, "urgent": true}
+		if !validStatuses[req.Status] {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid status"})
+			return
 		}
 
-		if err := db.Model(&order).Updates(updates).Error; err != nil {
+		order.Status = req.Status
+		order.UpdatedAt = time.Now()
+
+		if err := db.Save(&order).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 
-		db.Preload("Branch").Preload("Customer").First(&order, id)
-
 		c.JSON(http.StatusOK, gin.H{
-			"message": "Order updated successfully",
+			"message": "Order status updated successfully",
 			"data":    order,
 		})
 	}

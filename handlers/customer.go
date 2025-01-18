@@ -82,7 +82,25 @@ func GetCustomer(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{"data": customer})
+		var totalSpent float64
+		if err := db.Model(&models.Order{}).
+			Where("customer_id = ?", id).
+			Select("SUM(price)").
+			Scan(&totalSpent).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to calculate total spending"})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"data": gin.H{
+				"id":          customer.ID,
+				"name":        customer.Name,
+				"phone":       customer.Phone,
+				"address":     customer.Address,
+				"category":    customer.Category,
+				"total_spent": totalSpent,
+			},
+		})
 	}
 }
 

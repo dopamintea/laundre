@@ -46,7 +46,6 @@ func CreateUser(db *gorm.DB) gin.HandlerFunc {
 			}
 		}
 
-		// Hash password
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})

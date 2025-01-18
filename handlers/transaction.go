@@ -51,6 +51,11 @@ func CreateTransaction(db *gorm.DB) gin.HandlerFunc {
 				CustomerID: customer.ID,
 				Status:     req.OrderStatus,
 			}
+
+			if req.PaymentStatus == "paid" {
+				order.Price = req.TotalPrice
+			}
+
 			if err := tx.Create(&order).Error; err != nil {
 				return err
 			}
@@ -146,9 +151,24 @@ func UpdateTransaction(db *gorm.DB) gin.HandlerFunc {
 		var req struct {
 			PaymentStatus string `json:"payment_status"`
 		}
+
 		if err := c.ShouldBindJSON(&req); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
+		}
+
+		if req.PaymentStatus == "paid" {
+			var order models.Order
+			if err := db.First(&order, transaction.OrderID).Error; err != nil {
+				c.JSON(http.StatusNotFound, gin.H{"error": "Order not found"})
+				return
+			}
+
+			order.Price = transaction.TotalPrice
+			if err := db.Save(&order).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update order price"})
+				return
+			}
 		}
 
 		transaction.PaymentStatus = req.PaymentStatus
