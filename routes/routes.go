@@ -61,6 +61,13 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 		shared.GET("/customers/:id", handlers.GetCustomer(db))
 		shared.PUT("/customers/:id", handlers.UpdateCustomer(db))
 		shared.DELETE("/customers/:id", handlers.DeleteCustomer(db))
+
+		shared.POST("/inventory", handlers.CreateInventory(db))
+		shared.GET("/inventory", handlers.GetAllInventories(db))
+		shared.GET("/inventory/:id", handlers.GetInventoryByID(db))
+		shared.PUT("/inventory/:id", handlers.UpdateInventory(db))
+		shared.DELETE("/inventory/:id", handlers.DeleteInventory(db))
+		shared.POST("/inventory/branch", handlers.GetInventoryByBranch(db))
 	}
 
 }
