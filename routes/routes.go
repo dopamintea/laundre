@@ -36,9 +36,13 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 		admin.PUT("/branches/:id", handlers.UpdateBranch(db))
 		admin.DELETE("/branches/:id", handlers.DeleteBranch(db))
 
-		admin.GET("/gross", handlers.GetGrossProfit(db))
+		admin.GET("/finance/profit", handlers.GetProfit(db))
+		admin.GET("/finance/profit/:branch_id", handlers.GetProfitByBranch(db))
+		admin.GET("/finance/gross", handlers.GetGrossProfit(db))
+		admin.GET("/finance/gross/:branch_id", handlers.GetGrossProfitByBranch(db))
 		admin.POST("/transaction/report", handlers.GetTransactionByDate(db))
 		admin.GET("/transaction/report/:branch_id", handlers.GetTransactionsByBranch(db))
+		admin.GET("/expense/branch/:branch_id", handlers.GetExpensesByBranch(db))
 	}
 
 	shared := api.Group("/shared")
@@ -69,6 +73,12 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 		shared.PUT("/inventory/:id", handlers.UpdateInventory(db))
 		shared.DELETE("/inventory/:id", handlers.DeleteInventory(db))
 		shared.POST("/inventory/branch", handlers.GetInventoryByBranch(db))
+
+		shared.POST("/expense", handlers.CreateExpense(db))
+		shared.GET("/expense", handlers.GetAllExpenses(db))
+		shared.GET("/expense/:id", handlers.GetExpenseByID(db))
+		shared.PUT("/expense/:id", handlers.UpdateExpense(db))
+		shared.DELETE("/expense/:id", handlers.DeleteExpense(db))
 	}
 
 }
